@@ -30,7 +30,9 @@
 	--accent-foreground: hsl(192 30% 18%);
 	--destructive: hsl(2 75% 48%);
 	--destructive-foreground: hsl(0 0% 100%);
-	--border: hsl(186 22% 83%);
+	/* 構造的ボーダーは不使用（UI全体のボーダーを除去）。色トークンは透明にし、
+	   border-* ユーティリティを描画させない。塗り(--input)・機能枠(--ring等)は別途維持。 */
+	--border: transparent;
 	--input: hsl(186 22% 83%);
 	--ring: hsl(174 80% 33%);
 
@@ -57,7 +59,8 @@
 	--accent-foreground: hsl(180 14% 92%);
 	--destructive: hsl(2 82% 61%);
 	--destructive-foreground: hsl(0 0% 100%);
-	--border: hsl(192 22% 15%);
+	/* 構造的ボーダーは不使用（UI全体のボーダーを除去）。塗り(--input)は維持。 */
+	--border: transparent;
 	--input: hsl(192 22% 17%);
 	--ring: hsl(174 76% 47%);
 
@@ -114,8 +117,9 @@
 		width: 10px;
 		height: 10px;
 	}
+	/* --border を透明化したため、つまみは別トークンで可視化する */
 	::-webkit-scrollbar-thumb {
-		@apply bg-border;
+		@apply bg-muted-foreground/30;
 		border-radius: 9999px;
 	}
 }
