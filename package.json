@@ -1,0 +1,34 @@
+{
+  "name": "dis-ml",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Discord Meeting Logger Bot",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter '*' dev",
+    "dev:server": "bun --filter @dis-ml/server dev",
+    "dev:web": "bun --filter @dis-ml/web dev",
+    "desktop": "bun --filter @dis-ml/web build && bun --filter @dis-ml/server desktop",
+    "build": "bun --filter @dis-ml/web build && bun --filter @dis-ml/server build",
+    "build:binary": "bun run scripts/build-binary.ts",
+    "typecheck": "bun --filter '*' typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "db:generate": "bun --filter @dis-ml/server db:generate",
+    "db:migrate": "bun --filter @dis-ml/server db:migrate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "5.10.0",
+    "eslint": "^10.4.1",
+    "eslint-plugin-svelte": "^3.19.0",
+    "globals": "^17.6.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.0"
+  }
+}

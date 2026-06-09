@@ -1,0 +1,17 @@
+{
+  "name": "@dis-ml/contract",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "サーバ/フロント共有の oRPC 契約・ドメイン型",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@orpc/contract": "^1.14.5",
+    "zod": "^4.4.3"
+  }
+}

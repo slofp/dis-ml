@@ -1,0 +1,35 @@
+{
+  "name": "@dis-ml/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Discord 議事録Bot のバックエンド（Bot本体 + oRPCサーバ + STT + 録音）",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@dis-ml/contract": "workspace:*",
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.19.2",
+    "@noble/ciphers": "^2.2.0",
+    "@orpc/client": "^1.14.5",
+    "@orpc/server": "^1.14.5",
+    "@soniox/node": "^2.1.0",
+    "discord.js": "^14.26.4",
+    "drizzle-orm": "^0.45.2",
+    "opusscript": "^0.1.1",
+    "prism-media": "^1.3.5",
+    "webview-bun": "^2.4.0"
+  },
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "desktop": "bun run src/desktop.ts",
+    "build": "bun build src/index.ts --target=bun --outdir dist",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run src/db/migrate.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "drizzle-kit": "^0.31.10"
+  }
+}
