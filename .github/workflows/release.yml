@@ -1,0 +1,94 @@
+name: Release
+
+# v*.*.* 形式のタグを push したときに起動する。
+# ネイティブ依存（@discordjs/opus / webview-bun）はクロスコンパイル不可のため、
+# 各ターゲット OS の runner 上でネイティブにビルドし、生成物（アーカイブ）を
+# 同名タグの GitHub Release に添付する。
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  # 各プラットフォームでバイナリ一式をビルドし、アーカイブを artifact として保存する
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # 1 プラットフォームの失敗で他を巻き込まない
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-x64
+            os: ubuntu-latest
+            archive: tar.gz
+          - target: macos-arm64
+            os: macos-latest
+            archive: tar.gz
+          - target: windows-x64
+            os: windows-latest
+            archive: zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # 動作実証済みの Bun バージョンに固定（bun.lock との整合のため）
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      # lockfile 厳守。@discordjs/opus の prebuild 取得もこの段階で行われる
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Web(SPA) ビルド → bin/ へ web・drizzle・native を同梱 → 単一実行ファイル生成
+      - name: Build standalone binary
+        run: bun run build:binary
+
+      # Linux / macOS: 実行権限を保持するため tar.gz でアーカイブ（展開すると dis-ml/ 配下に一式）
+      - name: Package (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        shell: bash
+        run: |
+          mv bin dis-ml
+          tar -czf "dis-ml-${{ matrix.target }}.tar.gz" dis-ml
+
+      # Windows: zip でアーカイブ（展開すると dis-ml\ 配下に一式）
+      - name: Package (zip)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          Rename-Item -Path bin -NewName dis-ml
+          Compress-Archive -Path dis-ml -DestinationPath "dis-ml-${{ matrix.target }}.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dis-ml-${{ matrix.target }}
+          path: dis-ml-${{ matrix.target }}.${{ matrix.archive }}
+          if-no-files-found: error
+
+  # 全プラットフォームのアーカイブを集約し、タグに対応する Release を作成して添付する
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      # Release 作成・アセット添付に必要
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          # 全 artifact を dist/ 直下へまとめて展開する
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          # 起動タグ（github.ref）に対応する Release を作成し、アーカイブを添付
+          files: dist/*
+          fail_on_unmatched_files: true
+          generate_release_notes: true
